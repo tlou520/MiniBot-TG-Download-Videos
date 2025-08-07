@@ -2,6 +2,7 @@ import yt_dlp
 import instaloader
 import re
 import os
+import subprocess
 
 
 class Parser:
@@ -21,6 +22,29 @@ class Parser:
                 return handler(message)
 
         return None
+
+    def cut_segments(self, duration: int, segments: list[str], video_path: str) -> list[str]:
+        output_files = []
+        base_name, ext = os.path.splitext(video_path)
+
+        for idx, start_time in enumerate(segments):
+            output_path = f"{base_name}_part{idx+1}{ext}"
+            output_files.append(output_path)
+
+            cmd = [
+                "ffmpeg",
+                "-y",                  # overwrite without asking
+                "-ss", start_time,     # start time in HH:MM:SS
+                "-i", video_path,
+                "-t", str(duration),   # duration in seconds
+                "-c", "copy",          # no re-encoding
+                output_path
+            ]
+            subprocess.run(cmd, check=True)
+
+        return output_files
+
+        
 
     def youtube(self, url: str) -> str:
         output_path = "downloads/%(title)s.%(ext)s"

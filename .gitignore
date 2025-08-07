@@ -1,3 +1,5 @@
 .env
 .venv
 Bot_Videos/__pycache__/
+downloads/
+*.tmp
